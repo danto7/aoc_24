@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+const partOne = false
+
 func main() {
 	data, err := os.ReadFile("2/input")
 	if err != nil {
@@ -23,6 +25,10 @@ func main() {
 		if isSafe(splitted) {
 			safe++
 		} else {
+			if partOne {
+				continue
+			}
+			// part two
 			newSplitted := make([]string, len(splitted)-1)
 			for i := range splitted {
 				// safe way to remove element from slice without changing original slice
