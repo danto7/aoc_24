@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -23,6 +22,18 @@ func main() {
 
 		if isSafe(splitted) {
 			safe++
+		} else {
+			newSplitted := make([]string, len(splitted)-1)
+			for i := range splitted {
+				// safe way to remove element from slice without changing original slice
+				copy(newSplitted, splitted[:i])
+				copy(newSplitted[i:], splitted[i+1:])
+
+				if isSafe(newSplitted) {
+					safe++
+					break
+				}
+			}
 		}
 	}
 	println(safe)
@@ -64,10 +75,8 @@ func isSafe(splitted []string) bool {
 		if distance < 1 || distance > 3 {
 			return false
 		}
-		fmt.Println(n, last_num, distance)
 		last_num = n
 	}
-	fmt.Println(splitted)
 	return true
 }
 
