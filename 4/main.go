@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"slices"
 	"strings"
 )
 
@@ -20,71 +19,107 @@ func main() {
 		grid = append(grid, []rune(line))
 	}
 
-	var xmasCounter int
+	var partOneCounter int
+	var partTwoCounter int
 	for lineNum := range grid {
 		for colNum := range grid[lineNum] {
-			positions := positions(lineNum, colNum)
-			for _, position := range positions {
-				if checkForXmas(grid, position) {
-					xmasCounter++
+			// PART TWO
+			wordPositions := [][][]int{
+				{
+					// diagonal left down
+					{lineNum, colNum},
+					{lineNum + 1, colNum - 1},
+					{lineNum + 2, colNum - 2},
+					{lineNum + 3, colNum - 3},
+				}, {
+					// diagonal right down
+					{lineNum, colNum},
+					{lineNum + 1, colNum + 1},
+					{lineNum + 2, colNum + 2},
+					{lineNum + 3, colNum + 3},
+				}, {
+					// horizontal right
+					{lineNum, colNum},
+					{lineNum, colNum + 1},
+					{lineNum, colNum + 2},
+					{lineNum, colNum + 3},
+				}, {
+					// vertical down
+					{lineNum, colNum},
+					{lineNum + 1, colNum},
+					{lineNum + 2, colNum},
+					{lineNum + 3, colNum},
+				},
+			}
+			for _, position := range wordPositions {
+				if checkForWordInPositions(grid, "XMAS", position) || checkForWordInPositions(grid, "SAMX", position) {
+					partOneCounter++
+				}
+			}
+
+			// PART ONE
+
+			// 1 . 2
+			// . 3 .
+			// 4 . 5
+			wordPosition := [][]int{
+				{lineNum, colNum},
+				{lineNum, colNum + 2},
+				{lineNum + 1, colNum + 1},
+				{lineNum + 2, colNum},
+				{lineNum + 2, colNum + 2},
+			}
+
+			words := []string{
+				// M . S
+				// . A .
+				// M . S
+				"MSAMS",
+
+				// S . M
+				// . A .
+				// S . M
+				"SMASM",
+
+				// S . S
+				// . A .
+				// M . M
+				"SSAMM",
+
+				// M . M
+				// . A .
+				// S . S
+				"MMASS",
+			}
+
+			for _, word := range words {
+				if checkForWordInPositions(grid, word, wordPosition) {
+					partTwoCounter++
 				}
 			}
 		}
 	}
 
-	println(xmasCounter)
+	println("partone: ", partOneCounter)
+	println("parttwo: ", partTwoCounter)
 }
 
-func checkForXmas(grid [][]rune, positions [][]int) bool {
-	word := []rune("XMAS")
+func isWithinGridBounds(grid [][]rune, lineNum, colNum int) bool {
+	return lineNum >= 0 && lineNum < len(grid) && colNum >= 0 && colNum < len(grid[lineNum])
+}
+
+func checkForWordInPositions(grid [][]rune, word string, positions [][]int) bool {
+	chars := []rune(word)
 	for i, charPosition := range positions {
 		lineNum, colNum := charPosition[0], charPosition[1]
-		if lineNum < 0 || colNum < 0 {
+		if !isWithinGridBounds(grid, lineNum, colNum) {
 			return false
 		}
-		if lineNum >= len(grid) || colNum >= len(grid[lineNum]) {
-			return false
-		}
-
 		char := grid[lineNum][colNum]
-		if i == 0 && char == word[len(word)-1] {
-			// detect reverse word
-			slices.Reverse(word)
-			continue
-		}
-		if char != word[i] {
+
+		if char != chars[i] {
 			return false
 		}
 	}
 	return true
-}
-
-func positions(lineNum, colNum int) [][][]int {
-	return [][][]int{
-		{
-			// diagonal left down
-			{lineNum, colNum},
-			{lineNum + 1, colNum - 1},
-			{lineNum + 2, colNum - 2},
-			{lineNum + 3, colNum - 3},
-		}, {
-			// diagonal right down
-			{lineNum, colNum},
-			{lineNum + 1, colNum + 1},
-			{lineNum + 2, colNum + 2},
-			{lineNum + 3, colNum + 3},
-		}, {
-			// horizontal right
-			{lineNum, colNum},
-			{lineNum, colNum + 1},
-			{lineNum, colNum + 2},
-			{lineNum, colNum + 3},
-		}, {
-			// vertical down
-			{lineNum, colNum},
-			{lineNum + 1, colNum},
-			{lineNum + 2, colNum},
-			{lineNum + 3, colNum},
-		},
-	}
 }
